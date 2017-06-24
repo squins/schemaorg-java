@@ -1,5 +1,6 @@
 # Schema.org Client Library for Java
 
+-   [Squins Fork](#Squins_Fork)
 -   [Overview](#Overview)
 -   [Highlighted Features](#Highlighted_Features)
 -   [Quick Start](#Quick_Start)
@@ -7,6 +8,12 @@
 -   [Example Code](#Example_Code)
 -   [Dependencies](#Dependencies)
 -   [Links](#Links)
+
+## <a id='Squins_Fork'>Squins Fork</a>
+
+Squins fork of [Googles Schema.org java client](https://github.com/google/schemaorg-java). Fork created to get it published on JCenter.
+
+Gav: `com.squins.google.fork.schema-org-client:schema-org-client:1.0.0`
 
 ## <a name='Overview'>Overview</a>
 

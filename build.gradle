@@ -1,11 +1,25 @@
-apply plugin: 'java'
-apply plugin: 'java-library-distribution'
-
-repositories {
-    mavenCentral()
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
 }
 
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+
+group 'com.squins.google.fork.schema-org-client'
 project.version '1.0.0'
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
 
 dependencies {
     compile 'com.google.code.findbugs:jsr305:3.0.1'
@@ -15,43 +29,58 @@ dependencies {
     testCompile 'com.google.truth:truth:0.28'
 }
 
-jar {
-    baseName 'schema-org-client'
-}
-
-task fatJar(type: Jar) {
-    baseName = 'schema-org-client-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
-    baseName 'schema-org-client'
     classifier 'sources'
     from sourceSets.main.allSource
 }
 
-uploadArchives {
-    repositories {
-       flatDir {
-           dirs 'export'
-       }
-    }
+artifacts {
+    archives sourcesJar
 }
+
+if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
+    publishing {
+        publications {
+            Release(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+
+                from components.java
+            }
+        }
+    }
+
+    bintray {
+        user = bintrayUser
+        key = bintrayKey
+        publications = ['Release']
+        configurations = ['archives']
+        pkg {
+            userOrg = 'squins'
+            repo = 'Squins'
+            name = project.name
+            desc = 'Schema.org client for Java '
+            licenses = ['MIT']
+            websiteUrl = 'https://github.com/squins/schemaorg-java'
+            issueTrackerUrl = 'https://github.com/squins/schemaorg-java/issues'
+            vcsUrl = 'https://github.com/squins/schemaorg-java.git'
+            githubRepo = 'squins/schemaorg-java'
+            version {
+                name = project.version
+                released  = new Date()
+                vcsTag = "release-${project.version}"
+            }
+        }
+    }
+
+    bintrayUpload.dependsOn check, jar, sourcesJar, 'generatePomFileForReleasePublication'
+    publishToMavenLocal.dependsOn check, jar, sourcesJar, 'generatePomFileForReleasePublication'
+}
+
 
 test {
     // show standard out and standard error of the test JVM(s) on the console
     testLogging.showStandardStreams = true
-}
-
-distributions {
-    main {
-        baseName = 'schema-org-client'
-        contents {
-            from { sourcesJar }
-            from { 'README.md' }
-            from { 'LICENSE' }
-        }
-    }
 }
 
