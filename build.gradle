@@ -1,32 +1,26 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 }
-plugins {
-    id "com.jfrog.bintray" version "1.7.3"
-}
 
-
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven-publish'
-
+apply plugin: 'signing'
 
 group 'com.squins.google.fork.schema-org-client'
 project.version '1.0.0'
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.google.code.findbugs:jsr305:3.0.1'
-    compile 'com.google.guava:guava:19.0'
-    compile 'com.google.code.gson:gson:2.5'
-    testCompile 'junit:junit:4.+'
-    testCompile 'com.google.truth:truth:0.28'
+    api 'com.google.code.gson:gson:2.5'
+    api 'com.google.guava:guava:19.0'
+    implementation 'com.google.code.findbugs:jsr305:3.0.1'
+    testImplementation 'junit:junit:4.+'
+    testImplementation 'com.google.truth:truth:0.28'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -38,7 +32,9 @@ artifacts {
     archives sourcesJar
 }
 
-if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
+// Put your credentials in "gradle.properties":
+//     https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials
+if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
     publishing {
         publications {
             Release(MavenPublication) {
@@ -49,32 +45,18 @@ if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
                 from components.java
             }
         }
-    }
 
-    bintray {
-        user = bintrayUser
-        key = bintrayKey
-        publications = ['Release']
-        configurations = ['archives']
-        pkg {
-            userOrg = 'squins'
-            repo = 'Squins'
-            name = project.name
-            desc = 'Schema.org client for Java '
-            licenses = ['MIT']
-            websiteUrl = 'https://github.com/squins/schemaorg-java'
-            issueTrackerUrl = 'https://github.com/squins/schemaorg-java/issues'
-            vcsUrl = 'https://github.com/squins/schemaorg-java.git'
-            githubRepo = 'squins/schemaorg-java'
-            version {
-                name = project.version
-                released  = new Date()
-                vcsTag = "release-${project.version}"
-            }
+        repositories {
+            mavenCentral()
         }
     }
 
-    bintrayUpload.dependsOn check, jar, sourcesJar, 'generatePomFileForReleasePublication'
+    signing {
+        sign publishing.publications.Release
+        // FIXME: sources
+        // FIXME: Javadoc
+    }
+
     publishToMavenLocal.dependsOn check, jar, sourcesJar, 'generatePomFileForReleasePublication'
 }
 
@@ -83,4 +65,3 @@ test {
     // show standard out and standard error of the test JVM(s) on the console
     testLogging.showStandardStreams = true
 }
-

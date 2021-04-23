@@ -11,7 +11,7 @@
 
 ## <a id='Squins_Fork'>Squins Fork</a>
 
-We have created a fork of the [Google Schema.org java client](https://github.com/google/schemaorg-java) to [get it published](https://github.com/google/schemaorg-java/issues/2) on JCenter.
+We have created a fork of the [Google Schema.org java client](https://github.com/google/schemaorg-java) to [get it published](https://github.com/google/schemaorg-java/issues/2) on Maven Central.
 
 Gav: `com.squins.google.fork.schema-org-client:schema-org-client:1.0.0`
 
