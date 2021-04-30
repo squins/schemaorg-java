@@ -34,9 +34,11 @@ javadoc {
     failOnError = false
 }
 
-// Put your credentials in "gradle.properties":
+// Put your GPG and Sonatype credentials in "gradle.properties".
+//
+// Documentation for GPG:
 //     https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials
-if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
+if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile') && project.hasProperty('sonatype.username') && project.hasProperty('sonatype.password')) {
     publishing {
         publications {
             Release(MavenPublication) {
@@ -49,7 +51,16 @@ if (project.hasProperty('signing.keyId') && project.hasProperty('signing.passwor
         }
 
         repositories {
-            mavenCentral()
+            maven {
+                name = "ossSonatype"
+                def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots'
+                def releasesRepoUrl =  'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2'
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = project.property("sonatype.username")
+                    password = project.property("sonatype.password")
+                }
+            }
         }
     }
 
