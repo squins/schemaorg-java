@@ -23,13 +23,15 @@ dependencies {
     testImplementation 'com.google.truth:truth:0.28'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
+java {
+    toolchain {
+        withJavadocJar()
+        withSourcesJar()
+    }
 }
 
-artifacts {
-    archives sourcesJar
+javadoc {
+    failOnError = false
 }
 
 // Put your credentials in "gradle.properties":
@@ -53,11 +55,7 @@ if (project.hasProperty('signing.keyId') && project.hasProperty('signing.passwor
 
     signing {
         sign publishing.publications.Release
-        // FIXME: sources
-        // FIXME: Javadoc
     }
-
-    publishToMavenLocal.dependsOn check, jar, sourcesJar, 'generatePomFileForReleasePublication'
 }
 
 
